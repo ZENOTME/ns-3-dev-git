@@ -445,6 +445,10 @@ void
 WifiMac::SetAddress(Mac48Address address)
 {
     NS_LOG_FUNCTION(this << address);
+    for (auto& [id, link] : m_links)
+    {
+        link->feManager->SetAddress(address);
+    }
     m_address = address;
 }
 

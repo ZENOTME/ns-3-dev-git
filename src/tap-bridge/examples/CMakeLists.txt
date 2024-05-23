@@ -14,6 +14,7 @@ if(${ENABLE_TAP})
     SOURCE_FILES tap-csma-virtual-machine.cc
     LIBRARIES_TO_LINK
       ${libcsma}
+      ${libemtest}
       ${libtap-bridge}
       ${libinternet}
   )
