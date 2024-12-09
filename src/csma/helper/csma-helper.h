@@ -172,6 +172,7 @@ class CsmaHelper : public PcapHelperForDevice, public AsciiTraceHelperForDevice
      * \returns A container holding the added net devices.
      */
     NetDeviceContainer Install(const NodeContainer& c) const;
+    NetDeviceContainer Install(const NodeContainer& c, uint32_t) const;
 
     /**
      * For each Ptr<node> in the provided container, this method creates an
@@ -184,6 +185,7 @@ class CsmaHelper : public PcapHelperForDevice, public AsciiTraceHelperForDevice
      * \returns A container holding the added net devices.
      */
     NetDeviceContainer Install(const NodeContainer& c, Ptr<CsmaChannel> channel) const;
+    NetDeviceContainer Install(const NodeContainer& c, Ptr<CsmaChannel> channel, uint32_t) const;
 
     /**
      * For each Ptr<node> in the provided container, this method creates an
@@ -221,6 +223,7 @@ class CsmaHelper : public PcapHelperForDevice, public AsciiTraceHelperForDevice
      * \returns A container holding the added net device.
      */
     Ptr<NetDevice> InstallPriv(Ptr<Node> node, Ptr<CsmaChannel> channel) const;
+    Ptr<NetDevice> InstallPriv(Ptr<Node> node, Ptr<CsmaChannel> channel, uint32_t) const;
 
     /**
      * \brief Enable pcap output on the indicated net device.

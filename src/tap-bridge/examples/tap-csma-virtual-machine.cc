@@ -62,7 +62,6 @@
 #include "ns3/network-module.h"
 #include "ns3/tap-bridge-module.h"
 
-#include <fstream>
 #include <iostream>
 
 using namespace ns3;
@@ -73,6 +72,10 @@ int
 main(int argc, char* argv[])
 {
     CommandLine cmd(__FILE__);
+    int n = 2; // 默认节点数为2
+    cmd.AddValue("n", "Number of nodes to create", n);
+    int retry_time = 1000; // default retry 1000
+    cmd.AddValue("retry", "Number of retry time", retry_time);
     cmd.Parse(argc, argv);
 
     //
@@ -89,7 +92,7 @@ main(int argc, char* argv[])
     // the right side.
     //
     NodeContainer nodes;
-    nodes.Create(2);
+    nodes.Create(n);
 
     //
     // Use a CsmaHelper to get a CSMA channel created, and the needed net
@@ -99,7 +102,7 @@ main(int argc, char* argv[])
     // ./ns3 run "tap-csma-virtual-machine --ns3::CsmaChannel::DataRate=10000000"
     //
     CsmaHelper csma;
-    NetDeviceContainer devices = csma.Install(nodes);
+    NetDeviceContainer devices = csma.Install(nodes,retry_time);
 
     //
     // Use the TapBridgeHelper to connect to the pre-configured tap devices for
@@ -110,15 +113,15 @@ main(int argc, char* argv[])
     //
     TapBridgeHelper tapBridge;
     tapBridge.SetAttribute("Mode", StringValue("UseBridge"));
-    tapBridge.SetAttribute("DeviceName", StringValue("tap-left"));
-    tapBridge.Install(nodes.Get(0), devices.Get(0));
 
-    //
-    // Connect the right side tap to the right side CSMA device on the right-side
-    // ghost node.
-    //
-    tapBridge.SetAttribute("DeviceName", StringValue("tap-right"));
-    tapBridge.Install(nodes.Get(1), devices.Get(1));
+    for (int i = 0; i < n; ++i)
+    {
+        std::ostringstream deviceName;
+        deviceName << "tap-" << i+1;
+        std::cout<<"dev: "<<deviceName.str()<<std::endl;
+        tapBridge.SetAttribute("DeviceName", StringValue(deviceName.str()));
+        tapBridge.Install(nodes.Get(i), devices.Get(i));
+    }
 
     //
     // Run the simulation for ten minutes to give the user time to play around

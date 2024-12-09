@@ -309,6 +309,12 @@ CsmaNetDevice::SetBackoffParams(Time slotTime,
     m_backoff.m_maxRetries = maxRetries;
 }
 
+void 
+CsmaNetDevice::SetBackoffRetry(uint32_t retry) {
+    m_backoff.m_maxRetries = retry;
+}
+
+
 void
 CsmaNetDevice::AddHeader(Ptr<Packet> p,
                          Mac48Address source,
@@ -489,6 +495,7 @@ CsmaNetDevice::TransmitStart()
 
         if (m_backoff.MaxRetriesReached())
         {
+            NS_LOG_WARN("Reach max retry, abort");
             //
             // Too many retries, abort transmission of packet
             //

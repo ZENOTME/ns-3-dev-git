@@ -116,6 +116,7 @@ class CsmaNetDevice : public NetDevice
                           uint32_t maxSlots,
                           uint32_t maxRetries,
                           uint32_t ceiling);
+    void SetBackoffRetry(uint32_t retry);
 
     /**
      * Attach the device to a channel.

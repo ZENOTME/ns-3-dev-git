@@ -31,6 +31,7 @@
 #include "ns3/simulator.h"
 #include "ns3/trace-helper.h"
 
+#include <cstdint>
 #include <string>
 
 namespace ns3
@@ -273,6 +274,14 @@ CsmaHelper::Install(const NodeContainer& c) const
 }
 
 NetDeviceContainer
+CsmaHelper::Install(const NodeContainer& c, uint32_t max_retry_time) const
+{
+    Ptr<CsmaChannel> channel = m_channelFactory.Create()->GetObject<CsmaChannel>();
+
+    return Install(c, channel, max_retry_time);
+}
+
+NetDeviceContainer
 CsmaHelper::Install(const NodeContainer& c, Ptr<CsmaChannel> channel) const
 {
     NetDeviceContainer devs;
@@ -280,6 +289,19 @@ CsmaHelper::Install(const NodeContainer& c, Ptr<CsmaChannel> channel) const
     for (auto i = c.Begin(); i != c.End(); i++)
     {
         devs.Add(InstallPriv(*i, channel));
+    }
+
+    return devs;
+}
+
+NetDeviceContainer
+CsmaHelper::Install(const NodeContainer& c, Ptr<CsmaChannel> channel, uint32_t max_retry_time) const
+{
+    NetDeviceContainer devs;
+
+    for (auto i = c.Begin(); i != c.End(); i++)
+    {
+        devs.Add(InstallPriv(*i, channel, max_retry_time));
     }
 
     return devs;
@@ -314,6 +336,29 @@ CsmaHelper::InstallPriv(Ptr<Node> node, Ptr<CsmaChannel> channel) const
 {
     Ptr<CsmaNetDevice> device = m_deviceFactory.Create<CsmaNetDevice>();
     device->SetAddress(Mac48Address::Allocate());
+    node->AddDevice(device);
+    Ptr<Queue<Packet>> queue = m_queueFactory.Create<Queue<Packet>>();
+    device->SetQueue(queue);
+    device->Attach(channel);
+    if (m_enableFlowControl)
+    {
+        // Aggregate a NetDeviceQueueInterface object
+        Ptr<NetDeviceQueueInterface> ndqi = CreateObject<NetDeviceQueueInterface>();
+        ndqi->GetTxQueue(0)->ConnectQueueTraces(queue);
+        device->AggregateObject(ndqi);
+    }
+    return device;
+}
+
+Ptr<NetDevice>
+CsmaHelper::InstallPriv(Ptr<Node> node, Ptr<CsmaChannel> channel, uint32_t retry) const
+{
+    Ptr<CsmaNetDevice> device = m_deviceFactory.Create<CsmaNetDevice>();
+    device->SetAddress(Mac48Address::Allocate());
+    if (retry != 0)
+    {
+        device->SetBackoffRetry(retry);
+    }
     node->AddDevice(device);
     Ptr<Queue<Packet>> queue = m_queueFactory.Create<Queue<Packet>>();
     device->SetQueue(queue);
