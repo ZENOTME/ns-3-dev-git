@@ -225,19 +225,64 @@ CsmaChannel::TransmitEnd()
 
     NS_LOG_LOGIC("Receive");
 
-    for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
-    {
-        if (it->IsActive() && it->devicePtr != m_deviceList[m_currentSrc].devicePtr)
-        {
-            // schedule reception events
-            Simulator::ScheduleWithContext(it->devicePtr->GetNode()->GetId(),
+    if (m_currentSrc == 0) {
+        auto tar = &m_deviceList[1];
+        if (tar->IsActive()) {
+            Simulator::ScheduleWithContext(tar->devicePtr->GetNode()->GetId(),
                                            m_delay,
                                            &CsmaNetDevice::Receive,
-                                           it->devicePtr,
+                                           tar->devicePtr,
                                            m_currentPkt,
                                            m_deviceList[m_currentSrc].devicePtr);
         }
+    } else if (m_currentSrc == 2) {
+        auto tar = &m_deviceList[1];
+        if (tar->IsActive()) {
+            Simulator::ScheduleWithContext(tar->devicePtr->GetNode()->GetId(),
+                                           m_delay,
+                                           &CsmaNetDevice::Receive,
+                                           tar->devicePtr,
+                                           m_currentPkt,
+                                           m_deviceList[m_currentSrc].devicePtr);
+        }
+    } else {
+        {
+        auto tar = &m_deviceList[0];
+        if (tar->IsActive()) {
+            Simulator::ScheduleWithContext(tar->devicePtr->GetNode()->GetId(),
+                                           m_delay,
+                                           &CsmaNetDevice::Receive,
+                                           tar->devicePtr,
+                                           m_currentPkt,
+                                           m_deviceList[m_currentSrc].devicePtr);
+        }
+        }
+        {
+        auto tar = &m_deviceList[2];
+        if (tar->IsActive()) {
+            Simulator::ScheduleWithContext(tar->devicePtr->GetNode()->GetId(),
+                                           m_delay,
+                                           &CsmaNetDevice::Receive,
+                                           tar->devicePtr,
+                                           m_currentPkt,
+                                           m_deviceList[m_currentSrc].devicePtr);
+        }
+        }
     }
+
+    // for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
+    // {
+    //     if (it->IsActive() && it->devicePtr != m_deviceList[m_currentSrc].devicePtr)
+    //     {
+    //         // schedule reception events
+    //         Simulator::ScheduleWithContext(it->devicePtr->GetNode()->GetId(),
+    //                                        m_delay,
+    //                                        &CsmaNetDevice::Receive,
+    //                                        it->devicePtr,
+    //                                        m_currentPkt,
+    //                                        m_deviceList[m_currentSrc].devicePtr);
+    //     }
+    // }
 
     // also schedule for the tx side to go back to IDLE
     Simulator::Schedule(m_delay, &CsmaChannel::PropagationCompleteEvent, this);

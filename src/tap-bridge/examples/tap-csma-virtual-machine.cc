@@ -61,6 +61,7 @@
 #include "ns3/csma-module.h"
 #include "ns3/network-module.h"
 #include "ns3/tap-bridge-module.h"
+#include "ns3/emtest-module.h"
 
 #include <iostream>
 
@@ -102,7 +103,9 @@ main(int argc, char* argv[])
     // ./ns3 run "tap-csma-virtual-machine --ns3::CsmaChannel::DataRate=10000000"
     //
     CsmaHelper csma;
-    NetDeviceContainer devices = csma.Install(nodes,retry_time);
+    // EmTestHelper csma;
+    // NetDeviceContainer devices = csma.Install(nodes,retry_time);
+    NetDeviceContainer devices = csma.Install(nodes);
 
     //
     // Use the TapBridgeHelper to connect to the pre-configured tap devices for
